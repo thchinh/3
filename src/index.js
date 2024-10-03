@@ -2,8 +2,10 @@ import express from 'express';
 import userRepo from './utils/userRepository.js';
 import path from 'path';
 import { engine } from 'express-handlebars';
+// import multer from 'multer';
 
 const app = express();
+// const upload = multer();
 
 app.engine(
   'hbs',
@@ -40,19 +42,44 @@ app.post('/api/users', async (req, res) => {
   });
 });
 
+app.put('/api/users', async (req, res) => {
+  const result = await userRepo.updateUser(req.body);
+
+  if (result.affectedRows !== 0) {
+    return res.status(201).send({
+      message: 'User updated successfully',
+    });
+  }
+
+  res.statusCode(400).send({
+    messsage: "Data can't insert into database",
+  });
+});
+
+app.delete('/api/users/:id', async (req, res) => {
+  const result = await userRepo.deleteUser(req.params.id);
+
+  if (result.affectedRows !== 0) {
+    return res.status(201).send({
+      message: 'User DELETED successfully',
+    });
+  }
+
+  res.statusCode(400).send({
+    messsage: "Data can't insert into database",
+  });
+});
+
 // Render view endpoints
+app.get('/add-user', async (req, res) => {
+  res.render('users/addUser');
+});
+
 app.get('/', async (req, res) => {
   const result = await userRepo.getUsers();
   res.render('home', { users: result });
 });
 
 app.listen(3000, (req, res) => {
-  console.log('listening 3000');
+  console.log('listening http://localhost:3000');
 });
-
-// app.get('/', async (req, res) => {
-//   const result = await userRepo.getUsers();
-//   res.render('home', { users: result });
-// });
-
-// 500 => chet call
